@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvn clean compile:*)",
+      "Bash(mvn compile:*)",
+      "Bash(mvn clean package:*)",
+      "Bash(ls:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(git checkout:*)",
+      "Bash(mvn dependency:resolve:*)",
+      "WebFetch(domain:central.sonatype.com)",
+      "WebSearch",
+      "Bash(mvn dependency:build-classpath:*)",
+      "Bash(jar -tf:*)",
+      "Bash(unzip:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
