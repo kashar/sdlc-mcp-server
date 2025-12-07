@@ -47,15 +47,24 @@ public class ConfigurationManager {
     private final Properties properties;
     private boolean configLoaded = false;
 
-    // Configuration file locations (in priority order)
-    private static final String[] CONFIG_LOCATIONS = {
-            "application.properties",
-            System.getProperty("user.home") + "/.sdlc-tools/application.properties"
-    };
-
     private ConfigurationManager() {
         this.properties = new Properties();
         loadConfiguration();
+    }
+
+    /**
+     * Gets configuration file locations (in priority order).
+     */
+    private String[] getConfigLocations() {
+        String userHome = System.getProperty("user.home");
+        if (userHome != null) {
+            return new String[]{
+                    "application.properties",
+                    userHome + "/.sdlc-tools/application.properties"
+            };
+        } else {
+            return new String[]{"application.properties"};
+        }
     }
 
     /**
@@ -74,7 +83,7 @@ public class ConfigurationManager {
         logger.info("Loading configuration...");
 
         // Try to load from file
-        for (String location : CONFIG_LOCATIONS) {
+        for (String location : getConfigLocations()) {
             Path configPath = Paths.get(location);
             if (Files.exists(configPath)) {
                 try (InputStream input = new FileInputStream(configPath.toFile())) {

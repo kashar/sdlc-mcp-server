@@ -12,7 +12,11 @@
       "WebSearch",
       "Bash(mvn dependency:build-classpath:*)",
       "Bash(jar -tf:*)",
-      "Bash(unzip:*)"
+      "Bash(unzip:*)",
+      "Bash(chmod:*)",
+      "Bash(mvn clean test-compile:*)",
+      "Bash(mvn test:*)",
+      "Bash(mvn clean test:*)"
     ],
     "deny": [],
     "ask": []
