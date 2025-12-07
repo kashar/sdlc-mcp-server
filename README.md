@@ -50,6 +50,7 @@ Works seamlessly with SDLC personas defined in `.github/mcp/personas/`:
 - Java 17 or higher
 - Maven 3.6+
 - Claude Code CLI (for MCP client)
+- JIRA and/or Confluence account with API tokens (optional, for JIRA/Confluence features)
 
 ### Build
 
@@ -59,6 +60,58 @@ mvn clean package
 ```
 
 This creates an executable JAR: `target/sdlc-tools-mcp-server-2.0.0-SNAPSHOT-jar-with-dependencies.jar`
+
+### Configuration
+
+#### JIRA and Confluence Configuration
+
+To avoid passing credentials with every JIRA and Confluence tool call, you can configure them once using either:
+
+1. **Environment Variables** (recommended for security):
+   ```bash
+   export JIRA_URL=https://your-domain.atlassian.net
+   export JIRA_EMAIL=your-email@example.com
+   export JIRA_API_TOKEN=your-jira-api-token
+
+   export CONFLUENCE_URL=https://your-domain.atlassian.net/wiki
+   export CONFLUENCE_EMAIL=your-email@example.com
+   export CONFLUENCE_API_TOKEN=your-confluence-api-token
+   ```
+
+2. **Configuration File**:
+   Create `application.properties` in one of these locations:
+   - Current directory where the server runs
+   - `~/.sdlc-tools/application.properties`
+
+   ```properties
+   # JIRA Configuration
+   jira.url=https://your-domain.atlassian.net
+   jira.email=your-email@example.com
+   jira.api.token=your-jira-api-token
+
+   # Confluence Configuration
+   confluence.url=https://your-domain.atlassian.net/wiki
+   confluence.email=your-email@example.com
+   confluence.api.token=your-confluence-api-token
+   ```
+
+   Copy `application.properties.example` to get started:
+   ```bash
+   cp application.properties.example application.properties
+   # Edit application.properties with your credentials
+   ```
+
+3. **Generate API Tokens**:
+   - Visit [Atlassian API Tokens](https://id.atlassian.com/manage-profile/security/api-tokens)
+   - Click "Create API token"
+   - Give it a label and copy the token
+   - You can use the same token for both JIRA and Confluence if they're on the same instance
+
+**Configuration Priority** (highest to lowest):
+1. Tool parameters (allows per-call overrides)
+2. Environment variables
+3. `application.properties` in current directory
+4. `application.properties` in `~/.sdlc-tools/`
 
 ### Run
 
@@ -356,13 +409,24 @@ and create user documentation for the authentication API.
 Search for JIRA issues using JQL (JIRA Query Language).
 
 **Parameters:**
-- `jiraUrl` (required): JIRA instance URL (e.g., "https://your-domain.atlassian.net")
-- `email` (required): User email for authentication
-- `apiToken` (required): JIRA API token
+- `jiraUrl` (optional): JIRA instance URL (e.g., "https://your-domain.atlassian.net"). Uses configured value if not provided.
+- `email` (optional): User email for authentication. Uses configured value if not provided.
+- `apiToken` (optional): JIRA API token. Uses configured value if not provided.
 - `jql` (required): JQL query string
 - `maxResults` (optional): Maximum number of results (default: 50)
 
-**Example:**
+**Example with configuration:**
+```json
+{
+  "name": "jira-search-issues",
+  "arguments": {
+    "jql": "project = PROJ AND status = Open",
+    "maxResults": 25
+  }
+}
+```
+
+**Example with inline credentials:**
 ```json
 {
   "name": "jira-search-issues",
@@ -381,19 +445,16 @@ Search for JIRA issues using JQL (JIRA Query Language).
 Get detailed information about a specific JIRA issue.
 
 **Parameters:**
-- `jiraUrl` (required): JIRA instance URL
-- `email` (required): User email for authentication
-- `apiToken` (required): JIRA API token
+- `jiraUrl` (optional): JIRA instance URL. Uses configured value if not provided.
+- `email` (optional): User email for authentication. Uses configured value if not provided.
+- `apiToken` (optional): JIRA API token. Uses configured value if not provided.
 - `issueKey` (required): Issue key (e.g., "PROJ-123")
 
-**Example:**
+**Example with configuration:**
 ```json
 {
   "name": "jira-get-issue",
   "arguments": {
-    "jiraUrl": "https://your-domain.atlassian.net",
-    "email": "user@example.com",
-    "apiToken": "your-api-token",
     "issueKey": "PROJ-123"
   }
 }
@@ -404,22 +465,19 @@ Get detailed information about a specific JIRA issue.
 Create a new JIRA issue in a specified project.
 
 **Parameters:**
-- `jiraUrl` (required): JIRA instance URL
-- `email` (required): User email for authentication
-- `apiToken` (required): JIRA API token
+- `jiraUrl` (optional): JIRA instance URL. Uses configured value if not provided.
+- `email` (optional): User email for authentication. Uses configured value if not provided.
+- `apiToken` (optional): JIRA API token. Uses configured value if not provided.
 - `projectKey` (required): Project key (e.g., "PROJ")
 - `issueType` (required): Issue type (e.g., "Bug", "Task", "Story")
 - `summary` (required): Issue summary/title
 - `description` (optional): Detailed description
 
-**Example:**
+**Example with configuration:**
 ```json
 {
   "name": "jira-create-issue",
   "arguments": {
-    "jiraUrl": "https://your-domain.atlassian.net",
-    "email": "user@example.com",
-    "apiToken": "your-api-token",
     "projectKey": "PROJ",
     "issueType": "Bug",
     "summary": "Fix login page error",
@@ -435,20 +493,17 @@ Create a new JIRA issue in a specified project.
 Search for Confluence pages using CQL (Confluence Query Language).
 
 **Parameters:**
-- `confluenceUrl` (required): Confluence instance URL (e.g., "https://your-domain.atlassian.net/wiki")
-- `email` (required): User email for authentication
-- `apiToken` (required): Confluence API token
+- `confluenceUrl` (optional): Confluence instance URL (e.g., "https://your-domain.atlassian.net/wiki"). Uses configured value if not provided.
+- `email` (optional): User email for authentication. Uses configured value if not provided.
+- `apiToken` (optional): Confluence API token. Uses configured value if not provided.
 - `cql` (required): CQL query string
 - `limit` (optional): Maximum number of results (default: 25)
 
-**Example:**
+**Example with configuration:**
 ```json
 {
   "name": "confluence-search-pages",
   "arguments": {
-    "confluenceUrl": "https://your-domain.atlassian.net/wiki",
-    "email": "user@example.com",
-    "apiToken": "your-api-token",
     "cql": "space = DEV AND type = page",
     "limit": 10
   }
@@ -460,20 +515,17 @@ Search for Confluence pages using CQL (Confluence Query Language).
 Get detailed information about a specific Confluence page.
 
 **Parameters:**
-- `confluenceUrl` (required): Confluence instance URL
-- `email` (required): User email for authentication
-- `apiToken` (required): Confluence API token
+- `confluenceUrl` (optional): Confluence instance URL. Uses configured value if not provided.
+- `email` (optional): User email for authentication. Uses configured value if not provided.
+- `apiToken` (optional): Confluence API token. Uses configured value if not provided.
 - `pageId` (required): Page ID
 - `expand` (optional): Fields to expand (default: "body.storage,version")
 
-**Example:**
+**Example with configuration:**
 ```json
 {
   "name": "confluence-get-page",
   "arguments": {
-    "confluenceUrl": "https://your-domain.atlassian.net/wiki",
-    "email": "user@example.com",
-    "apiToken": "your-api-token",
     "pageId": "123456789"
   }
 }
@@ -484,22 +536,19 @@ Get detailed information about a specific Confluence page.
 Create a new Confluence page in a specified space.
 
 **Parameters:**
-- `confluenceUrl` (required): Confluence instance URL
-- `email` (required): User email for authentication
-- `apiToken` (required): Confluence API token
+- `confluenceUrl` (optional): Confluence instance URL. Uses configured value if not provided.
+- `email` (optional): User email for authentication. Uses configured value if not provided.
+- `apiToken` (optional): Confluence API token. Uses configured value if not provided.
 - `spaceKey` (required): Space key (e.g., "DEV")
 - `title` (required): Page title
 - `content` (required): Page content in Confluence storage format (HTML)
 - `parentId` (optional): Parent page ID
 
-**Example:**
+**Example with configuration:**
 ```json
 {
   "name": "confluence-create-page",
   "arguments": {
-    "confluenceUrl": "https://your-domain.atlassian.net/wiki",
-    "email": "user@example.com",
-    "apiToken": "your-api-token",
     "spaceKey": "DEV",
     "title": "API Documentation",
     "content": "<h1>API Documentation</h1><p>This page contains API documentation...</p>"

@@ -1,6 +1,7 @@
 package com.example.mcp.tools.jira;
 
 import com.example.mcp.clients.JiraClient;
+import com.example.mcp.config.ConfigurationManager;
 import com.example.mcp.tools.Tool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,15 +39,15 @@ public class CreateJiraIssueTool implements Tool {
                         "properties", Map.of(
                                 "jiraUrl", Map.of(
                                         "type", "string",
-                                        "description", "JIRA instance URL (e.g., https://your-domain.atlassian.net)"
+                                        "description", "JIRA instance URL (e.g., https://your-domain.atlassian.net). Optional if configured via environment or application.properties"
                                 ),
                                 "email", Map.of(
                                         "type", "string",
-                                        "description", "User email for authentication"
+                                        "description", "User email for authentication. Optional if configured via environment or application.properties"
                                 ),
                                 "apiToken", Map.of(
                                         "type", "string",
-                                        "description", "JIRA API token"
+                                        "description", "JIRA API token. Optional if configured via environment or application.properties"
                                 ),
                                 "projectKey", Map.of(
                                         "type", "string",
@@ -65,16 +66,20 @@ public class CreateJiraIssueTool implements Tool {
                                         "description", "Detailed description of the issue"
                                 )
                         ),
-                        "required", List.of("jiraUrl", "email", "apiToken", "projectKey", "issueType", "summary")
+                        "required", List.of("projectKey", "issueType", "summary")
                 )
         );
     }
 
     @Override
     public Object execute(Map<String, Object> arguments) throws Exception {
-        String jiraUrl = (String) arguments.get("jiraUrl");
-        String email = (String) arguments.get("email");
-        String apiToken = (String) arguments.get("apiToken");
+        ConfigurationManager config = ConfigurationManager.getInstance();
+
+        // Get configuration values with fallback to parameters
+        String jiraUrl = config.getJiraUrlOrDefault((String) arguments.get("jiraUrl"));
+        String email = config.getJiraEmailOrDefault((String) arguments.get("email"));
+        String apiToken = config.getJiraApiTokenOrDefault((String) arguments.get("apiToken"));
+
         String projectKey = (String) arguments.get("projectKey");
         String issueType = (String) arguments.get("issueType");
         String summary = (String) arguments.get("summary");

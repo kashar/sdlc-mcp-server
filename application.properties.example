@@ -1,0 +1,50 @@
+# SDLC Tools MCP Server Configuration
+# Copy this file to application.properties and fill in your credentials
+
+# ====================================
+# JIRA Configuration
+# ====================================
+
+# JIRA instance URL (e.g., https://your-domain.atlassian.net)
+jira.url=
+
+# User email for JIRA authentication
+jira.email=
+
+# JIRA API token
+# Generate at: https://id.atlassian.com/manage-profile/security/api-tokens
+jira.api.token=
+
+# ====================================
+# Confluence Configuration
+# ====================================
+
+# Confluence instance URL (e.g., https://your-domain.atlassian.net/wiki)
+confluence.url=
+
+# User email for Confluence authentication
+confluence.email=
+
+# Confluence API token
+# Generate at: https://id.atlassian.com/manage-profile/security/api-tokens
+confluence.api.token=
+
+# ====================================
+# Notes
+# ====================================
+#
+# 1. Configuration Priority:
+#    - Environment variables (highest priority)
+#    - application.properties in current directory
+#    - application.properties in ~/.sdlc-tools/
+#    - application.properties in classpath
+#
+# 2. Environment Variables (alternative to this file):
+#    - JIRA_URL, JIRA_EMAIL, JIRA_API_TOKEN
+#    - CONFLUENCE_URL, CONFLUENCE_EMAIL, CONFLUENCE_API_TOKEN
+#
+# 3. You can use the same email and API token for both JIRA and Confluence
+#    if they're on the same Atlassian instance
+#
+# 4. Tool parameters always override configured values
+#

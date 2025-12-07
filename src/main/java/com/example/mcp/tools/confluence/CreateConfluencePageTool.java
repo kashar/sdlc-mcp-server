@@ -1,6 +1,7 @@
 package com.example.mcp.tools.confluence;
 
 import com.example.mcp.clients.ConfluenceClient;
+import com.example.mcp.config.ConfigurationManager;
 import com.example.mcp.tools.Tool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,15 +39,15 @@ public class CreateConfluencePageTool implements Tool {
                         "properties", Map.of(
                                 "confluenceUrl", Map.of(
                                         "type", "string",
-                                        "description", "Confluence instance URL (e.g., https://your-domain.atlassian.net/wiki)"
+                                        "description", "Confluence instance URL (e.g., https://your-domain.atlassian.net/wiki). Optional if configured via environment or application.properties"
                                 ),
                                 "email", Map.of(
                                         "type", "string",
-                                        "description", "User email for authentication"
+                                        "description", "User email for authentication. Optional if configured via environment or application.properties"
                                 ),
                                 "apiToken", Map.of(
                                         "type", "string",
-                                        "description", "Confluence API token"
+                                        "description", "Confluence API token. Optional if configured via environment or application.properties"
                                 ),
                                 "spaceKey", Map.of(
                                         "type", "string",
@@ -65,16 +66,20 @@ public class CreateConfluencePageTool implements Tool {
                                         "description", "Parent page ID (optional)"
                                 )
                         ),
-                        "required", List.of("confluenceUrl", "email", "apiToken", "spaceKey", "title", "content")
+                        "required", List.of("spaceKey", "title", "content")
                 )
         );
     }
 
     @Override
     public Object execute(Map<String, Object> arguments) throws Exception {
-        String confluenceUrl = (String) arguments.get("confluenceUrl");
-        String email = (String) arguments.get("email");
-        String apiToken = (String) arguments.get("apiToken");
+        ConfigurationManager config = ConfigurationManager.getInstance();
+
+        // Get configuration values with fallback to parameters
+        String confluenceUrl = config.getConfluenceUrlOrDefault((String) arguments.get("confluenceUrl"));
+        String email = config.getConfluenceEmailOrDefault((String) arguments.get("email"));
+        String apiToken = config.getConfluenceApiTokenOrDefault((String) arguments.get("apiToken"));
+
         String spaceKey = (String) arguments.get("spaceKey");
         String title = (String) arguments.get("title");
         String content = (String) arguments.get("content");

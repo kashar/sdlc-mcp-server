@@ -1,0 +1,5 @@
+/target/
+/.idea/
+
+# Configuration files with credentials
+application.properties

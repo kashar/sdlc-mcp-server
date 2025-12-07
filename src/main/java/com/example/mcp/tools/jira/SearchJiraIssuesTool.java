@@ -1,6 +1,7 @@
 package com.example.mcp.tools.jira;
 
 import com.example.mcp.clients.JiraClient;
+import com.example.mcp.config.ConfigurationManager;
 import com.example.mcp.tools.Tool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,15 +39,15 @@ public class SearchJiraIssuesTool implements Tool {
                         "properties", Map.of(
                                 "jiraUrl", Map.of(
                                         "type", "string",
-                                        "description", "JIRA instance URL (e.g., https://your-domain.atlassian.net)"
+                                        "description", "JIRA instance URL (e.g., https://your-domain.atlassian.net). Optional if configured via environment or application.properties"
                                 ),
                                 "email", Map.of(
                                         "type", "string",
-                                        "description", "User email for authentication"
+                                        "description", "User email for authentication. Optional if configured via environment or application.properties"
                                 ),
                                 "apiToken", Map.of(
                                         "type", "string",
-                                        "description", "JIRA API token"
+                                        "description", "JIRA API token. Optional if configured via environment or application.properties"
                                 ),
                                 "jql", Map.of(
                                         "type", "string",
@@ -57,16 +58,20 @@ public class SearchJiraIssuesTool implements Tool {
                                         "description", "Maximum number of results to return (default: 50)"
                                 )
                         ),
-                        "required", List.of("jiraUrl", "email", "apiToken", "jql")
+                        "required", List.of("jql")
                 )
         );
     }
 
     @Override
     public Object execute(Map<String, Object> arguments) throws Exception {
-        String jiraUrl = (String) arguments.get("jiraUrl");
-        String email = (String) arguments.get("email");
-        String apiToken = (String) arguments.get("apiToken");
+        ConfigurationManager config = ConfigurationManager.getInstance();
+
+        // Get configuration values with fallback to parameters
+        String jiraUrl = config.getJiraUrlOrDefault((String) arguments.get("jiraUrl"));
+        String email = config.getJiraEmailOrDefault((String) arguments.get("email"));
+        String apiToken = config.getJiraApiTokenOrDefault((String) arguments.get("apiToken"));
+
         String jql = (String) arguments.get("jql");
         int maxResults = arguments.containsKey("maxResults") ?
                 ((Number) arguments.get("maxResults")).intValue() : 50;
